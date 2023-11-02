@@ -4,8 +4,6 @@
 
 **YouETube By. Fabra** is a simple Python application with a graphical user interface (GUI) created using the tkinter library. It allows you to download YouTube videos in either MP3 or MP4 format. The program also handles YouTube playlists.
 
-![Texto Alternativo](https://raw.githubusercontent.com/Fabricciomb/YouETube/main/guide.png)
-
 ## How to Use
 
 ### 1. Paste Video URL
