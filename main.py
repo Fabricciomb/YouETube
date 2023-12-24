@@ -2,7 +2,7 @@ import os
 import tkinter as tk
 from tkinter import filedialog, messagebox
 from tkinter import ttk
-from pytube import YouTube, Playlist
+from pytube import YouTube
 import re
 
 # Function to create the 'youtube' directory on the desktop if it doesn't exist.
@@ -36,25 +36,51 @@ def download_video(url, destination_folder, format):
 
             print(f"Downloading {format}: {title}")
             stream.download(output_path=destination_folder, filename=filename)
-            #messagebox.showinfo("Download Completed", f"{title} downloaded successfully!")
+            messagebox.showinfo("Download Completed", f"{title} downloaded successfully!")
     except Exception as e:
         print(f"An error occurred: {e}")
         messagebox.showerror("Error", f"An error occurred: {e}")
 
+def update_url_from_clipboard():
+    clipboard_content = window.clipboard_get()
+    if clipboard_content.startswith("https://www.youtube.com/") or clipboard_content.startswith("https://youtu.be/"):
+        url_entry.delete(0, tk.END)
+        url_entry.insert(0, clipboard_content)
+        download_button_clicked()  # Trigger download when URL is updated
+
+    # Schedule the update_url_from_clipboard function to be called after 1000 milliseconds (1 second)
+    window.after(1000, update_url_from_clipboard)
+
 def download_button_clicked():
     url = url_entry.get()
-    format = format_combobox.get()
 
+    # Verifique se o usuário selecionou um formato
+    format = format_combobox.get()
+    if not format:
+        messagebox.showerror("Error", "Select a format!")
+        return
+
+    # Verifique se o destino foi selecionado
     if not destination_folder_label["text"]:
-        messagebox.showerror("Error", "Select a destination folder!")
         return
 
     destination_folder = destination_folder_label["text"]
+
+    # Verifique se a URL já foi processada antes
+    if url in processed_urls:
+        # messagebox.showinfo("Already Downloaded", "This URL has already been downloaded.")
+        return
 
     if 'playlist' in url.lower():
         download_playlist(url, destination_folder, format)
     else:
         download_video(url, destination_folder, format)
+
+    # Adicione a URL à lista de URLs processadas
+    processed_urls.add(url)
+
+# Adicione esta linha no início do seu script para criar um conjunto vazio de URLs processadas
+processed_urls = set()
 
 def select_folder():
     destination_folder = filedialog.askdirectory()
@@ -116,4 +142,5 @@ window.geometry("")
 window.minsize(300, 390)  # Set the desired minimum size
 
 # Start the GUI
+window.after(1000, update_url_from_clipboard)  # Schedule the update_url_from_clipboard function to be called after 1 second
 window.mainloop()
